@@ -27,6 +27,15 @@ const App = () => {
       })
   }, [])
 
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedPersonappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      connectionService.setToken(user.token)
+    }
+  }, [])
+
   const handleLogin = async (event) => {
     event.preventDefault()
     console.log('logging in with', username, password)
@@ -35,6 +44,10 @@ const App = () => {
       const user = await loginService.login({
         username, password,
       })
+
+      window.localStorage.setItem(
+        'loggedPersonappUser', JSON.stringify(user)
+      ) 
       connectionService.setToken(user.token)
       setUser(user)
       setUsername('')
@@ -137,6 +150,11 @@ const App = () => {
     }
   }
 
+  const logout = () => {
+    window.localStorage.removeItem('loggedPersonappUser')
+    window. location. reload()
+  }
+
 
   return (
     <div className='body'>
@@ -147,6 +165,7 @@ const App = () => {
       <Login handleLogin={handleLogin} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/> :
       <div>
       <h3>{user.name} logged-in</h3>
+      <h3><button className='button' onClick={logout}>Logout</button></h3>
       <PersonForm newSearch={newSearch} handleSearch={handleSearch} submitAction={submitAction} newName={newName} handleChangeName={handleChangeName} newNumber={newNumber} handleChangeNumber={handleChangeNumber}/>
       </div>
       }
