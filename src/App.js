@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import Name from './Components/Name.js'
 import Notification from './Components/Notification.js'
+import Login from './Components/Login.js'
+import PersonForm from './Components/PersonForm.js'
 import connectionService from './services/connection'
+import loginService from './services/login'
 
 //start
 const App = () => {
@@ -11,6 +14,9 @@ const App = () => {
   const [newSearch, setNewSearch] = useState('')
   const [showPersons, setShowPerson] = useState(persons)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     connectionService
@@ -20,6 +26,27 @@ const App = () => {
         setShowPerson(initialPersons)
       })
   }, [])
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    console.log('logging in with', username, password)
+
+    try {
+      const user = await loginService.login({
+        username, password,
+      })
+      connectionService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
+
+    } catch (exception) {
+      setErrorMessage('Wrong credentials')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
 
   const handleChangeName = (event) => {
     console.log(event.target.value)
@@ -115,22 +142,15 @@ const App = () => {
     <div className='body'>
       <h1>Phonebook</h1>
       <Notification message={errorMessage}/>
-      <h3>Search By Name</h3>
-      <div className='center'><input className='textField' value={newSearch} onChange={handleSearch}/></div>
-      <h3>Add New</h3>
-      <form onSubmit={submitAction}>
-      <div className='container'>
-        <div>
-          Name <br></br> <input className='textField' value={newName} onChange={handleChangeName}/>
-        </div>
-        <div>
-          Number <br></br> <input className='textField' value={newNumber} onChange={handleChangeNumber}/>
-        </div>
-        <div>
-          <button className='button' type="submit">Add</button>
-        </div>
+
+      {user === null ?
+      <Login handleLogin={handleLogin} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/> :
+      <div>
+      <h3>{user.name} logged-in</h3>
+      <PersonForm newSearch={newSearch} handleSearch={handleSearch} submitAction={submitAction} newName={newName} handleChangeName={handleChangeName} newNumber={newNumber} handleChangeNumber={handleChangeNumber}/>
       </div>
-      </form>
+      }
+      
       <h2>Numbers</h2>
       <div className='list'>
       <ul>
