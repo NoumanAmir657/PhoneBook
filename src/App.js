@@ -5,6 +5,7 @@ import Login from './Components/Login.js'
 import PersonForm from './Components/PersonForm.js'
 import connectionService from './services/connection'
 import loginService from './services/login'
+import axios from 'axios'
 
 //start
 const App = () => {
@@ -18,7 +19,8 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-  useEffect(() => {
+
+ useEffect(() => {
     connectionService
       .getAll()
       .then(initialPersons => {
@@ -26,6 +28,7 @@ const App = () => {
         setShowPerson(initialPersons)
       })
   }, [])
+
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedPersonappUser')
@@ -49,6 +52,13 @@ const App = () => {
         'loggedPersonappUser', JSON.stringify(user)
       ) 
       connectionService.setToken(user.token)
+      /*
+      axios.get(`/api/users`).then(persons => {
+        console.log(persons.data[0].personsId)
+        setShowPerson(persons.data[0].personsId)
+        setPersons(persons.data[0].personsId)
+      })
+      */
       setUser(user)
       setUsername('')
       setPassword('')

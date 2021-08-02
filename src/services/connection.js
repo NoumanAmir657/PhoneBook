@@ -30,6 +30,7 @@ const del = (id) => {
   axios.delete(`${baseUrl}/${id}`)
 }
 
+
 export default { 
   getAll: getAll, 
   create: create, 
